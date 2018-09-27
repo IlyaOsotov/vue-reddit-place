@@ -5,14 +5,14 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    count: 0,
+    pixels: {},
   },
   mutations: {
-    increment(state) {
-      state.count += 1;
+    setPixels(state, pixels) {
+      state.pixels = pixels;
     },
-  },
-  actions: {
-
+    addPixel(state, pixel) {
+      state.pixels.push(pixel);
+    },
   },
 });

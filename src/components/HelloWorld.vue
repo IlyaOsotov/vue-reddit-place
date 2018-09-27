@@ -1,7 +1,27 @@
 <template>
-  <div class="hello">
-    <h1 v-on:click="incrementCount">{{ msg }}</h1>
-    <compact-picker v-model="colors"/>
+  <div 
+    v-on:click="addPoint" 
+    class="hello"
+    v-bind:style="{
+      position: 'absolute',
+      width: '10000px',
+      height: '10000px',
+    }"
+  >
+    <div 
+      v-for="pixel in pixels" :key="pixel.id"
+      v-bind:style="{
+        position: 'absolute',
+        'display': 'inline-block',
+        left: pixel.x * PIXEL_SIZE + 'px',
+        top: pixel.y * PIXEL_SIZE + 'px',
+        width: PIXEL_SIZE + 'px',
+        height: PIXEL_SIZE + 'px', 
+        backgroundColor: pixel.color,
+      }"
+    >
+    </div>
+    <!-- <compact-picker v-model="colors"/> -->
   </div>
 </template>
 
@@ -10,6 +30,7 @@ import { Compact } from 'vue-color';
 import db from '../apiStore';
 
 let colors = '#194d33';
+const PIXEL_SIZE = 10;
 
 export default {
   name: 'HelloWorld',
@@ -19,25 +40,30 @@ export default {
   components: {
     'compact-picker': Compact,
   },
-  methods: {
-    incrementCount() {
-      this.$store.commit('increment');
-      let docRef = db.collection('points').doc("u0EEGMLUK1awp1lK618i");
-      docRef.get().then(function(doc) {
-        if (doc.exists) {
-            console.log("Document data:", doc.data());
-        } else {
-            console.log("No such document!");
-        }
-      }).catch(function(error) {
-          console.log("Error getting document:", error);
-      });
-
-    },
+  created: function () {
+    db.collection('points').onSnapshot(coll => {
+      this.$store.commit('setPixels', coll.docs.map(doc => doc.data()))
+    })
+    // db.collection('points').add({
+    //   color: '#194d33',
+    //   x: Math.floor(Math.random() * 100),
+    //   y: Math.floor(Math.random() * 100),
+    // });
   },
-  data () {
+  methods: {
+    addPoint() {
+      console.log(123)
+    }
+  },
+  computed: {
+    pixels() {
+      return this.$store.state.pixels;
+    }
+  },
+  data() {
     return {
-      colors
+      colors,
+      PIXEL_SIZE
     }
   }
 };
