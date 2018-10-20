@@ -1,6 +1,6 @@
 <template>
   <div 
-    v-on:click="addPoint" 
+    v-on:click="handlePicker" 
     class="hello"
     v-bind:style="{
       position: 'absolute',
@@ -21,7 +21,13 @@
       }"
     >
     </div>
-    <!-- <compact-picker v-model="colors"/> -->
+    {{this.selectedCoordinate}} && <div v-bind:style="{
+      position: 'absolute',
+      left: this.selectedCoordinate.x * PIXEL_SIZE + 'px',
+      top: this.selectedCoordinate.y * PIXEL_SIZE + 'px',
+    }">
+      <compact-picker v-if="!isHidden" v-model="colors" @input="setColor"/>
+    </div>
   </div>
 </template>
 
@@ -30,6 +36,8 @@ import { Compact } from 'vue-color';
 import db from '../apiStore';
 
 let colors = '#194d33';
+let isHidden = true;
+let selectedCoordinate = {};
 const PIXEL_SIZE = 10;
 
 export default {
@@ -44,15 +52,22 @@ export default {
     db.collection('points').onSnapshot(coll => {
       this.$store.commit('setPixels', coll.docs.map(doc => doc.data()))
     })
-    // db.collection('points').add({
-    //   color: '#194d33',
-    //   x: Math.floor(Math.random() * 100),
-    //   y: Math.floor(Math.random() * 100),
-    // });
   },
   methods: {
-    addPoint() {
-      console.log(123)
+    handlePicker(event) {
+      const coordinate = {
+        x: Math.floor(event.clientX / PIXEL_SIZE),
+        y: Math.floor(event.clientY / PIXEL_SIZE)
+      }
+      this.selectedCoordinate = coordinate;
+      this.isHidden = !this.isHidden;
+    },
+    setColor(value) {
+      db.collection('points').add({
+        color: value.hex,
+        x: this.selectedCoordinate.x,
+        y: this.selectedCoordinate.y,
+      });
     }
   },
   computed: {
@@ -63,6 +78,8 @@ export default {
   data() {
     return {
       colors,
+      isHidden,
+      selectedCoordinate,
       PIXEL_SIZE
     }
   }
