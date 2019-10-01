@@ -56,8 +56,8 @@ export default {
   methods: {
     handlePicker(event) {
       const coordinate = {
-        x: Math.floor(event.clientX / PIXEL_SIZE),
-        y: Math.floor(event.clientY / PIXEL_SIZE)
+        x: Math.floor(event.clientX / PIXEL_SIZE) - 1,
+        y: Math.floor(event.clientY / PIXEL_SIZE) - 6
       }
       this.selectedCoordinate = coordinate;
       this.isHidden = !this.isHidden;
